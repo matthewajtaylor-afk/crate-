@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Crate">
+<meta name="theme-color" content="#0b0b0d">
+<title>Crate</title>
+<link rel="apple-touch-icon" id="touchIcon" href="">
+<style>
+  :root {
+    --bg: #0b0b0d; --card: #17171b; --card2: #202026; --line: #2a2a31;
+    --text: #f4f4f6; --muted: #8d8d98; --accent: #f5a524; --accent-ink: #1a1203;
+    --green: #30d158; --red: #ff453a;
+    --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  body { padding-top: var(--safe-t); min-height: 100vh; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  input, select, textarea { font: inherit; color: var(--text); background: var(--card2);
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%;
+    outline: none; font-size: 16px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: none; min-height: 70px; }
+  select { appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238d8d98' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  .app { max-width: 640px; margin: 0 auto; padding: 0 16px calc(96px + var(--safe-b)); }
+  header { padding: 18px 0 8px; display: flex; align-items: baseline; justify-content: space-between; }
+  h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 14px; }
+
+  .toolbar { position: sticky; top: var(--safe-t); z-index: 5; background: linear-gradient(var(--bg) 85%, transparent);
+    padding: 6px 0 12px; display: grid; gap: 8px; }
+  .row { display: flex; gap: 8px; }
+  .row > * { flex: 1; min-width: 0; }
+  .search { position: relative; }
+  .search input { padding-left: 40px; }
+  .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+  .toolbar select { padding: 10px 34px 10px 12px; font-size: 14px; }
+  .viewbtn { flex: 0 0 44px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; display: grid; place-items: center; }
+  .viewbtn svg { width: 20px; height: 20px; }
+
+  .section-h { margin: 20px 2px 10px; display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .section-h b { color: var(--accent); font-weight: 700; }
+
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (min-width: 520px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .tile { text-align: left; display: block; width: 100%; }
+  .cover { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--card);
+    box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover .ph { width: 100%; height: 100%; display: grid; place-items: center; font-weight: 800; font-size: 34px; color: rgba(255,255,255,.85); }
+  .badge { position: absolute; top: 6px; right: 6px; font-size: 11px; font-weight: 700; padding: 3px 7px;
+    border-radius: 99px; background: rgba(0,0,0,.65); backdrop-filter: blur(6px); }
+  .badge.hi { background: var(--accent); color: var(--accent-ink); }
+  .t-title { margin-top: 8px; font-weight: 650; font-size: 14px; line-height: 1.25;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .t-artist { color: var(--muted); font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .list { display: grid; gap: 8px; }
+  .item { display: flex; gap: 12px; align-items: center; background: var(--card); border-radius: 14px; padding: 10px; width: 100%; text-align: left; }
+  .item .cover { width: 56px; flex: 0 0 56px; border-radius: 8px; box-shadow: none; }
+  .item .ph { font-size: 20px; }
+  .item .meta { flex: 1; min-width: 0; }
+  .item .t-title { margin: 0; -webkit-line-clamp: 1; }
+  .item .right { color: var(--muted); font-size: 12px; text-align: right; white-space: nowrap; }
+  .stars { color: var(--accent); letter-spacing: 1px; font-size: 12px; }
+
+  .empty { text-align: center; color: var(--muted); padding: 70px 20px; }
+  .empty .disc { width: 96px; height: 96px; margin: 0 auto 18px; border-radius: 50%;
+    background: radial-gradient(circle at center, var(--accent) 0 14%, #111 15% 30%, #1c1c20 31% 100%);
+    box-shadow: 0 0 0 2px #26262c inset; }
+  .empty b { color: var(--text); display: block; font-size: 18px; margin-bottom: 4px; }
+
+  nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: rgba(15,15,18,.88);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-top: 1px solid var(--line);
+    padding-bottom: var(--safe-b); }
+  nav .in { max-width: 640px; margin: 0 auto; display: flex; }
+  nav button { flex: 1; padding: 10px 0 8px; display: grid; justify-items: center; gap: 3px; font-size: 11px; color: var(--muted); font-weight: 600; }
+  nav button.on { color: var(--accent); }
+  nav svg { width: 24px; height: 24px; }
+  .fab { position: fixed; right: 18px; bottom: calc(76px + var(--safe-b)); z-index: 11; width: 58px; height: 58px; border-radius: 50%;
+    background: var(--accent); color: var(--accent-ink); display: grid; place-items: center;
+    box-shadow: 0 8px 24px rgba(245,165,36,.4); }
+  .fab svg { width: 28px; height: 28px; }
+
+  .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .scrim.on { opacity: 1; pointer-events: auto; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-width: 640px; margin: 0 auto;
+    background: var(--card); border-radius: 22px 22px 0 0; max-height: 92vh; overflow-y: auto;
+    padding: 10px 18px calc(24px + var(--safe-b)); transform: translateY(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); }
+  .sheet.on { transform: none; }
+  .sheet.tall { height: 92vh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: calc(10px + var(--safe-b)); }
+  .sheet.tall .scroll { flex: 1; overflow-y: auto; margin: 0 -18px; padding: 0 18px 16px; -webkit-overflow-scrolling: touch; }
+  .grab { width: 40px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 14px; flex: 0 0 auto; }
+  .sheet h2 { margin: 0 0 12px; font-size: 20px; }
+  label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+  .seg { display: flex; background: var(--card2); border-radius: 12px; padding: 3px; gap: 3px; }
+  .seg button { flex: 1; padding: 9px 4px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: var(--accent); color: var(--accent-ink); }
+  .btn { width: 100%; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 16px; background: var(--accent); color: var(--accent-ink); margin-top: 18px; }
+  .btn.ghost { background: var(--card2); color: var(--text); margin-top: 10px; }
+  .btn.danger { background: transparent; color: var(--red); margin-top: 6px; }
+  .btn.small { width: auto; padding: 10px 14px; font-size: 14px; margin: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* add sheet */
+  .chips-row { display: flex; gap: 8px; overflow-x: auto; padding: 10px 18px 6px; margin: 0 -18px; scrollbar-width: none; flex: 0 0 auto; }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .fchip { flex: 0 0 auto; padding: 8px 13px; border-radius: 99px; background: var(--card2); color: var(--muted); font-size: 13px; font-weight: 650; white-space: nowrap; border: 1px solid transparent; }
+  .fchip.on { background: var(--accent); color: var(--accent-ink); }
+  .fchip.spot { border-color: #1db95466; color: #1ed760; }
+  .fchip.spot.on { background: #1ed760; color: #04230f; }
+  .arow { display: flex; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #202026; }
+  .arow .cover { width: 52px; flex: 0 0 52px; border-radius: 7px; box-shadow: none; }
+  .arow .ph { font-size: 18px; }
+  .arow .meta { flex: 1; min-width: 0; }
+  .arow .t-title { margin: 0; -webkit-line-clamp: 1; }
+  .addbtn { flex: 0 0 auto; min-width: 42px; height: 38px; padding: 0 12px; border-radius: 99px; background: var(--card2); font-weight: 800; font-size: 20px; color: var(--accent); display: grid; place-items: center; }
+  .addbtn.done { background: transparent; color: var(--green); font-size: 18px; }
+  .addbtn.other { background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; }
+  .more { width: 100%; padding: 14px; color: var(--accent); font-weight: 700; }
+  .grp { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 16px 0 2px; }
+  .linkbtn { color: var(--muted); font-size: 14px; text-decoration: underline; padding: 12px 0 4px; text-align: center; width: 100%; flex: 0 0 auto; }
+  .hint { color: var(--muted); font-size: 13px; margin: 10px 0; }
+
+  .rate { display: flex; gap: 6px; }
+  .rate button { font-size: 30px; line-height: 1; color: var(--line); padding: 2px; }
+  .rate button.on { color: var(--accent); }
+
+  .detail-cover { width: 62%; max-width: 260px; margin: 6px auto 16px; }
+  .detail h2 { text-align: center; margin: 0; font-size: 22px; }
+  .detail .by { text-align: center; color: var(--muted); margin: 4px 0 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 8px; }
+  .chip { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: var(--card2); color: var(--muted); }
+  .notes { background: var(--card2); border-radius: 12px; padding: 12px 14px; margin-top: 12px; font-size: 14px; color: #cfcfd6; white-space: pre-wrap; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 6px; }
+  .stat { background: var(--card); border-radius: 16px; padding: 14px 10px; text-align: center; }
+  .stat b { display: block; font-size: 28px; font-weight: 800; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .bars { background: var(--card); border-radius: 16px; padding: 14px; display: grid; gap: 10px; }
+  .bar .l { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .bar .l span:last-child { color: var(--muted); }
+  .bar .t { height: 8px; background: var(--card2); border-radius: 9px; overflow: hidden; }
+  .bar .f { height: 100%; background: var(--accent); border-radius: 9px; }
+  .toast { position: fixed; left: 50%; bottom: calc(150px + var(--safe-b)); transform: translateX(-50%) translateY(20px); background: #fff; color: #000;
+    padding: 10px 16px; border-radius: 99px; font-weight: 600; font-size: 14px; opacity: 0; pointer-events: none; transition: .25s; z-index: 40; white-space: nowrap; }
+  .toast.on { opacity: 1; transform: translateX(-50%); }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<button class="fab" id="fab" aria-label="Add album">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+<nav><div class="in" id="nav"></div></nav>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept="application/json" hidden>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     BUILT-IN ALBUM DATABASE
+     Format:  Artist@GenreCode@Album~Year;Album~Year;...
+     Anything not in here is found through the live Apple Music search.
+     ===================================================================== */
+  var CODES = { R: 'Rock', I: 'Indie', P: 'Pop', H: 'Hip-Hop', S: 'R&B / Soul', E: 'Electronic', J: 'Jazz', M: 'Metal', K: 'Punk', F: 'Folk / Country', G: 'Reggae' };
+
+  // Artists from your Spotify playlist
+  var SPOT = ['Empire Of The Sun', 'Disclosure', 'Sam Smith', 'Mac DeMarco', 'Blood Orange', 'Natasha Bedingfield', 'Supergrass',
+    'Bob Marley & The Wailers', 'Black Eyed Peas', 'Fleetwood Mac', 'MGMT', 'Two Door Cinema Club', 'The Temper Trap', 'Father John Misty',
+    'Mac Miller', 'Gwen Stefani', 'Akon', 'Fitz and The Tantrums', 'Declan McKenna', 'Martin Solveig', 'Calvin Harris', 'Frank Ocean',
+    'Cherub', 'The Kooks', 'The Cure', 'The Strokes'];
+
+  var RAW = [
+  // ---- your Spotify artists
+  'Empire Of The Sun@E@Walking on a Dream~2008;Ice on the Dune~2013;Two Vines~2016',
+  'Disclosure@E@Settle~2013;Caracal~2015;Energy~2020;Alchemy~2024',
+  'Sam Smith@P@In the Lonely Hour~2014;The Thrill of It All~2017;Love Goes~2020;Gloria~2023',
+  'Mac DeMarco@I@2~2012;Salad Days~2014;This Old Dog~2017;Here Comes the Cowboy~2019;Five Easy Hot Dogs~2023',
+  'Blood Orange@S@Coastal Grooves~2011;Cupid Deluxe~2013;Freetown Sound~2016;Negro Swan~2018;Angel\'s Pulse~2019',
+  'Natasha Bedingfield@P@Unwritten~2004;Pocketful of Sunshine~2008',
+  'Supergrass@R@I Should Coco~1995;In It for the Money~1997;Supergrass~1999;Life on Other Planets~2002',
+  'Bob Marley & The Wailers@G@Legend~1984;Exodus~1977;Catch a Fire~1973;Burnin\'~1973;Natty Dread~1974;Kaya~1978;Uprising~1980',
+  'Black Eyed Peas@P@Behind the Front~1998;Elephunk~2003;Monkey Business~2005;The E.N.D.~2009;The Beginning~2010',
+  'Fleetwood Mac@R@Fleetwood Mac~1975;Rumours~1977;Tusk~1979;Mirage~1982;Tango in the Night~1987',
+  'MGMT@I@Oracular Spectacular~2007;Congratulations~2010;MGMT~2013;Little Dark Age~2018',
+  'Two Door Cinema Club@I@Tourist History~2010;Beacon~2012;Gameshow~2016;False Alarm~2019',
+  'The Temper Trap@I@Conditions~2009;The Temper Trap~2012',
+  'Father John Misty@F@Fear Fun~2012;I Love You, Honeybear~2015;Pure Comedy~2017;God\'s Favorite Customer~2018;Chloë and the Next 20th Century~2022',
+  'Mac Miller@H@K.I.D.S.~2010;Blue Slide Park~2011;Watching Movies with the Sound Off~2013;GO:OD AM~2015;The Divine Feminine~2016;Swimming~2018;Circles~2020',
+  'Gwen Stefani@P@Love. Angel. Music. Baby.~2004;The Sweet Escape~2006',
+  'Akon@S@Trouble~2004;Konvicted~2006',
+  'Fitz and The Tantrums@I@Pickin\' Up the Pieces~2010;More Than Just a Dream~2013;Fitz and The Tantrums~2016',
+  'Declan McKenna@I@What Do You Think About the Car?~2017;Zeros~2020;What Happened to the Beach?~2023',
+  'Martin Solveig@E@Smash~2011;Hedonist~2008',
+  'Calvin Harris@E@I Created Disco~2007;18 Months~2012;Motion~2014;Funk Wav Bounces Vol. 1~2017',
+  'Frank Ocean@S@Nostalgia, Ultra~2011;Channel Orange~2012;Blonde~2016',
+  'Cherub@E@Year of the Caprese~2013',
+  'The Kooks@I@Inside In / Inside Out~2006;Konk~2008;Junk of the Heart~2011;Listen~2014;Let\'s Go Sunshine~2018',
+  'The Cure@R@Three Imaginary Boys~1979;Seventeen Seconds~1980;Faith~1981;Pornography~1982;The Head on the Door~1985;Kiss Me, Kiss Me, Kiss Me~1987;Disintegration~1989;Wish~1992;Songs of a Lost World~2024',
+  'The Strokes@I@Is This It~2001;Room on Fire~2003;First Impressions of Earth~2006;Angles~2011;Comedown Machine~2013;The New Abnormal~2020',
+
+  // ---- rock / classic rock
+  'The Beatles@R@Please Please Me~1963;A Hard Day\'s Night~1964;Help!~1965;Rubber Soul~1965;Revolver~1966;Sgt. Pepper\'s Lonely Hearts Club Band~1967;Magical Mystery Tour~1967;The Beatles (White Album)~1968;Abbey Road~1969;Let It Be~1970',
+  'Led Zeppelin@R@Led Zeppelin~1969;Led Zeppelin II~1969;Led Zeppelin III~1970;Led Zeppelin IV~1971;Houses of the Holy~1973;Physical Graffiti~1975',
+  'Pink Floyd@R@The Piper at the Gates of Dawn~1967;Meddle~1971;The Dark Side of the Moon~1973;Wish You Were Here~1975;Animals~1977;The Wall~1979',
+  'The Rolling Stones@R@Aftermath~1966;Beggars Banquet~1968;Let It Bleed~1969;Sticky Fingers~1971;Exile on Main St.~1972;Some Girls~1978;Hackney Diamonds~2023',
+  'David Bowie@R@Hunky Dory~1971;The Rise and Fall of Ziggy Stardust and the Spiders from Mars~1972;Aladdin Sane~1973;Diamond Dogs~1974;Station to Station~1976;Low~1977;"Heroes"~1977;Scary Monsters~1980;Let\'s Dance~1983;Blackstar~2016',
+  'Queen@R@Queen II~1974;Sheer Heart Attack~1974;A Night at the Opera~1975;Jazz~1978;The Game~1980;Greatest Hits~1981;A Kind of Magic~1986',
+  'Eagles@R@Desperado~1973;One of These Nights~1975;Hotel California~1976;Their Greatest Hits (1971-1975)~1976',
+  'Dire Straits@R@Dire Straits~1978;Making Movies~1980;Brothers in Arms~1985',
+  'AC/DC@R@Let There Be Rock~1977;Highway to Hell~1979;Back in Black~1980;The Razors Edge~1990',
+  'Guns N\' Roses@R@Appetite for Destruction~1987;Use Your Illusion I~1991;Use Your Illusion II~1991',
+  'Nirvana@R@Bleach~1989;Nevermind~1991;In Utero~1993;MTV Unplugged in New York~1994',
+  'Pearl Jam@R@Ten~1991;Vs.~1993;Vitalogy~1994',
+  'Foo Fighters@R@Foo Fighters~1995;The Colour and the Shape~1997;There Is Nothing Left to Lose~1999;One by One~2002;In Your Honor~2005;Echoes, Silence, Patience & Grace~2007;Wasting Light~2011',
+  'Red Hot Chili Peppers@R@Mother\'s Milk~1989;Blood Sugar Sex Magik~1991;One Hot Minute~1995;Californication~1999;By the Way~2002;Stadium Arcadium~2006;The Getaway~2016',
+  'Green Day@K@Dookie~1994;Insomniac~1995;Nimrod~1997;American Idiot~2004;21st Century Breakdown~2009',
+  'Radiohead@R@Pablo Honey~1993;The Bends~1995;OK Computer~1997;Kid A~2000;Amnesiac~2001;Hail to the Thief~2003;In Rainbows~2007;The King of Limbs~2011;A Moon Shaped Pool~2016',
+  'Oasis@R@Definitely Maybe~1994;(What\'s the Story) Morning Glory?~1995;Be Here Now~1997;Standing on the Shoulder of Giants~2000;Heathen Chemistry~2002',
+  'Blur@R@Modern Life Is Rubbish~1993;Parklife~1994;The Great Escape~1995;Blur~1997;13~1999;Think Tank~2003;The Ballad of Darren~2023',
+  'The Smiths@R@The Smiths~1984;Hatful of Hollow~1984;Meat Is Murder~1985;The Queen Is Dead~1986;Strangeways, Here We Come~1987',
+  'Joy Division@R@Unknown Pleasures~1979;Closer~1980',
+  'New Order@E@Power, Corruption & Lies~1983;Low-Life~1985;Technique~1989;Substance~1987',
+  'U2@R@Boy~1980;War~1983;The Unforgettable Fire~1984;The Joshua Tree~1987;Achtung Baby~1991;All That You Can\'t Leave Behind~2000;How to Dismantle an Atomic Bomb~2004',
+  'Coldplay@R@Parachutes~2000;A Rush of Blood to the Head~2002;X&Y~2005;Viva la Vida or Death and All His Friends~2008;Mylo Xyloto~2011;Ghost Stories~2014;A Head Full of Dreams~2015;Everyday Life~2019;Music of the Spheres~2021;Moon Music~2024',
+  'Muse@R@Showbiz~1999;Origin of Symmetry~2001;Absolution~2003;Black Holes and Revelations~2006;The Resistance~2009;The 2nd Law~2012;Drones~2015',
+  'Arctic Monkeys@I@Whatever People Say I Am, That\'s What I\'m Not~2006;Favourite Worst Nightmare~2007;Humbug~2009;Suck It and See~2011;AM~2013;Tranquility Base Hotel & Casino~2018;The Car~2022',
+  'The Killers@R@Hot Fuss~2004;Sam\'s Town~2006;Sawdust~2007;Day & Age~2008;Battle Born~2012;Wonderful Wonderful~2017;Imploding the Mirage~2020',
+  'Kings of Leon@R@Youth and Young Manhood~2003;Aha Shake Heartbreak~2004;Because of the Times~2007;Only by the Night~2008;Come Around Sundown~2010',
+  'The White Stripes@R@De Stijl~2000;White Blood Cells~2001;Elephant~2003;Get Behind Me Satan~2005;Icky Thump~2007',
+  'Queens of the Stone Age@R@Queens of the Stone Age~1998;Rated R~2000;Songs for the Deaf~2002;Era Vulgaris~2007;...Like Clockwork~2013',
+  'Bruce Springsteen@R@Born to Run~1975;Darkness on the Edge of Town~1978;The River~1980;Nebraska~1982;Born in the U.S.A.~1984',
+  'Bob Dylan@F@The Freewheelin\' Bob Dylan~1963;Bringing It All Back Home~1965;Highway 61 Revisited~1965;Blonde on Blonde~1966;Nashville Skyline~1969;Blood on the Tracks~1975;Time Out of Mind~1997',
+  'Neil Young@F@After the Gold Rush~1970;Harvest~1972;Rust Never Sleeps~1979',
+  'The Doors@R@The Doors~1967;Strange Days~1967;L.A. Woman~1971',
+  'Jimi Hendrix@R@Are You Experienced~1967;Axis: Bold as Love~1967;Electric Ladyland~1968',
+  'The Who@R@Tommy~1969;Who\'s Next~1971;Quadrophenia~1973',
+  'The Velvet Underground@R@The Velvet Underground & Nico~1967',
+  'Talking Heads@R@Talking Heads: 77~1977;More Songs About Buildings and Food~1978;Fear of Music~1979;Remain in Light~1980;Speaking in Tongues~1983;Stop Making Sense~1984',
+  'The Clash@K@The Clash~1977;London Calling~1979;Sandinista!~1980;Combat Rock~1982',
+  'Sex Pistols@K@Never Mind the Bollocks, Here\'s the Sex Pistols~1977',
+  'Ramones@K@Ramones~1976;Rocket to Russia~1977',
+  'Black Sabbath@M@Black Sabbath~1970;Paranoid~1970;Master of Reality~1971;Vol. 4~1972',
+  'Metallica@M@Kill \'Em All~1983;Ride the Lightning~1984;Master of Puppets~1986;...And Justice for All~1988;Metallica (The Black Album)~1991;Hardwired... to Self-Destruct~2016',
+  'Iron Maiden@M@The Number of the Beast~1982;Piece of Mind~1983;Powerslave~1984;Fear of the Dark~1992',
+  'Slipknot@M@Slipknot~1999;Iowa~2001;Vol. 3: (The Subliminal Verses)~2004',
+  'System of a Down@M@System of a Down~1998;Toxicity~2001;Mezmerize~2005',
+  'Linkin Park@M@Hybrid Theory~2000;Meteora~2003;Minutes to Midnight~2007;From Zero~2024',
+  'Rage Against the Machine@M@Rage Against the Machine~1992;Evil Empire~1996;The Battle of Los Angeles~1999',
+  'Deftones@M@Around the Fur~1997;White Pony~2000;Diamond Eyes~2010',
+  'Tool@M@Ænima~1996;Lateralus~2001;10,000 Days~2006',
+  'My Chemical Romance@K@Three Cheers for Sweet Revenge~2004;The Black Parade~2006',
+  'Paramore@K@Riot!~2007;Brand New Eyes~2009;Paramore~2013;After Laughter~2017',
+  'blink-182@K@Enema of the State~1999;Take Off Your Pants and Jacket~2001;blink-182~2003',
+  'Fall Out Boy@K@From Under the Cork Tree~2005;Infinity on High~2007',
+  'The Black Keys@R@Rubber Factory~2004;Attack & Release~2008;Brothers~2010;El Camino~2011;Turn Blue~2014',
+
+  // ---- indie / alternative
+  'Tame Impala@I@Innerspeaker~2010;Lonerism~2012;Currents~2015;The Slow Rush~2020',
+  'Vampire Weekend@I@Vampire Weekend~2008;Contra~2010;Modern Vampires of the City~2013;Father of the Bride~2019',
+  'Arcade Fire@I@Funeral~2004;Neon Bible~2007;The Suburbs~2010;Reflektor~2013',
+  'LCD Soundsystem@E@LCD Soundsystem~2005;Sound of Silver~2007;This Is Happening~2010',
+  'Interpol@I@Turn On the Bright Lights~2002;Antics~2004',
+  'Yeah Yeah Yeahs@I@Fever to Tell~2003;It\'s Blitz!~2009',
+  'The National@I@Boxer~2007;High Violet~2010;Trouble Will Find Me~2013;Sleep Well Beast~2017',
+  'Bon Iver@F@For Emma, Forever Ago~2007;Bon Iver, Bon Iver~2011;22, A Million~2016;i,i~2019',
+  'Fleet Foxes@F@Fleet Foxes~2008;Helplessness Blues~2011',
+  'Mumford & Sons@F@Sigh No More~2009;Babel~2012',
+  'Florence + The Machine@I@Lungs~2009;Ceremonials~2011;How Big, How Blue, How Beautiful~2015;High as Hope~2018',
+  'alt-J@I@An Awesome Wave~2012;This Is All Yours~2014',
+  'The 1975@I@The 1975~2013;I like it when you sleep, for you are so beautiful yet so unaware of it~2016;A Brief Inquiry into Online Relationships~2018;Notes on a Conditional Form~2020;Being Funny in a Foreign Language~2022',
+  'Wolf Alice@I@My Love Is Cool~2015;Visions of a Life~2017;Blue Weekend~2021',
+  'Fontaines D.C.@K@Dogrel~2019;A Hero\'s Death~2020;Skinty Fia~2022',
+  'IDLES@K@Brutalism~2017;Joy as an Act of Resistance~2018;Ultra Mono~2020',
+  'Franz Ferdinand@I@Franz Ferdinand~2004;You Could Have It So Much Better~2005',
+  'Bloc Party@I@Silent Alarm~2005',
+  'The Libertines@I@Up the Bracket~2002;The Libertines~2004',
+  'Kasabian@I@Kasabian~2004;Empire~2006',
+  'Snow Patrol@R@Eyes Open~2006',
+  'Elbow@I@The Seldom Seen Kid~2008',
+  'The Verve@R@Urban Hymns~1997',
+  'The Stone Roses@I@The Stone Roses~1989',
+  'Pulp@I@Different Class~1995',
+  'Suede@I@Suede~1993',
+  'Manic Street Preachers@R@Everything Must Go~1996',
+  'Travis@I@The Man Who~1999',
+  'Stereophonics@R@Performance and Cocktails~1999',
+  'Catfish and the Bottlemen@I@The Ride~2016',
+  'Royal Blood@R@Royal Blood~2014',
+  'Sam Fender@R@Hypersonic Missiles~2019;Seventeen Going Under~2021;People Watching~2025',
+  'Hozier@F@Hozier~2014;Wasteland, Baby!~2019',
+  'George Ezra@P@Wanted on Voyage~2014',
+  'Foster the People@I@Torches~2011',
+  'Passion Pit@I@Manners~2009;Gossamer~2012',
+  'Phoenix@I@It\'s Never Been Like That~2006;Wolfgang Amadeus Phoenix~2009;Bankrupt!~2013',
+  'Miike Snow@I@Miike Snow~2009',
+  'Cut Copy@E@In Ghost Colours~2008;Zonoscope~2011',
+  'Washed Out@I@Within and Without~2011',
+  'Toro y Moi@I@Causers of This~2010;Underneath the Pine~2011',
+  'Beach House@I@Teen Dream~2010;Bloom~2012;Depression Cherry~2015;7~2018',
+  'Real Estate@I@Days~2011',
+  'Wild Nothing@I@Gemini~2010',
+  'The Drums@I@The Drums~2010',
+  'Grizzly Bear@I@Veckatimest~2009',
+  'Animal Collective@I@Merriweather Post Pavilion~2009',
+  'Of Monsters and Men@I@My Head Is an Animal~2011',
+  'The Lumineers@F@The Lumineers~2012',
+  'Bastille@I@Bad Blood~2013',
+  'Imagine Dragons@R@Night Visions~2012;Evolve~2017',
+  'Walk the Moon@I@Walk the Moon~2012',
+  'Twenty One Pilots@I@Vessel~2013;Blurryface~2015;Trench~2018',
+  'Portugal. The Man@I@Woodstock~2017',
+  'Glass Animals@I@ZABA~2014;How to Be a Human Being~2016;Dreamland~2020',
+  'Rex Orange County@I@Apricot Princess~2017;Pony~2019;Who Cares?~2020',
+  'Boy Pablo@I@Wachito Rico~2020',
+  'Still Woozy@I@If This Isn\'t Nice, I Don\'t Know What Is~2021',
+  'Cuco@I@Para Mí~2019',
+  'Homeshake@I@In the Shower~2015;Fresh Air~2017',
+  'Connan Mockasin@I@Caramel~2013',
+  'Kevin Morby@F@Singing Saw~2016',
+  'Surfaces@P@Where the Light Is~2019',
+  'Yellow Days@I@A Day in a Yellow Beat~2018',
+  'Peace@I@In Love~2013',
+  'Bombay Bicycle Club@I@I Had the Blues but I Shook Them Loose~2009;A Different Kind of Fix~2011;So Long, See You Tomorrow~2014',
+  'The Wombats@I@A Guide to Love, Loss & Desperation~2007;This Modern Glitch~2011',
+  'Clairo@I@Immunity~2019;Sling~2021',
+  'Beabadoobee@I@Fake It Flowers~2020;Beatopia~2022',
+  'Wet Leg@I@Wet Leg~2022',
+  'Men I Trust@I@Oncle Jazz~2019',
+  'Khruangbin@S@Con Todo El Mundo~2018;Mordecai~2020',
+  'Leon Bridges@S@Coming Home~2015;Good Thing~2018',
+  'Tom Misch@S@Geography~2018',
+  'Loyle Carner@H@Yesterday\'s Gone~2017;Not Waving, But Drowning~2019',
+
+  // ---- singer-songwriter / folk / country
+  'Joni Mitchell@F@Blue~1971;Court and Spark~1974',
+  'Leonard Cohen@F@Songs of Leonard Cohen~1967;I\'m Your Man~1988',
+  'Simon & Garfunkel@F@Sounds of Silence~1966;Bookends~1968;Bridge over Troubled Water~1970',
+  'Carole King@F@Tapestry~1971',
+  'Cat Stevens@F@Tea for the Tillerman~1970',
+  'Nick Drake@F@Five Leaves Left~1969;Pink Moon~1972',
+  'Elliott Smith@F@Either/Or~1997;XO~1998',
+  'Sufjan Stevens@F@Illinois~2005;Carrie & Lowell~2015',
+  'Phoebe Bridgers@I@Stranger in the Alps~2017;Punisher~2020',
+  'Big Thief@I@Two Hands~2019;Dragon New Warm Mountain I Believe in You~2022',
+  'boygenius@I@the record~2023',
+  'Mitski@I@Puberty 2~2016;Be the Cowboy~2018;Laurel Hell~2022;The Land Is Inhospitable and So Are We~2023',
+  'Japanese Breakfast@I@Soft Sounds from Another Planet~2017;Jubilee~2021',
+  'Noah Kahan@F@Stick Season~2022',
+  'Zach Bryan@F@American Heartbreak~2022;Zach Bryan~2023',
+  'Morgan Wallen@F@One Thing at a Time~2023',
+  'Chris Stapleton@F@Traveller~2015',
+  'Kacey Musgraves@F@Same Trailer Different Park~2013;Golden Hour~2018',
+  'Johnny Cash@F@At Folsom Prison~1968;American IV: The Man Comes Around~2002',
+  'Willie Nelson@F@Red Headed Stranger~1975',
+  'Dolly Parton@F@Jolene~1974',
+  'Tyler Childers@F@Purgatory~2017',
+  'Jason Isbell@F@Southeastern~2013',
+  'Maggie Rogers@P@Heard It in a Past Life~2019',
+  'Lucy Dacus@I@Historian~2018',
+  'John Mayer@R@Room for Squares~2001;Continuum~2006;Born and Raised~2012;Sob Rock~2021',
+  'Jack Johnson@F@Brushfire Fairytales~2001;In Between Dreams~2005',
+  'Jason Mraz@P@We Sing. We Dance. We Steal Things.~2008',
+  'Paolo Nutini@P@These Streets~2006;Sunny Side Up~2009',
+  'James Bay@R@Chaos and the Calm~2015',
+  'Ben Howard@F@Every Kingdom~2011',
+  'Gotye@I@Making Mirrors~2011',
+  'Tom Odell@P@Long Way Down~2013',
+  'Jake Bugg@I@Jake Bugg~2012',
+  'Passenger@F@All the Little Lights~2012',
+  'Rag\'n\'Bone Man@S@Human~2017',
+
+  // ---- pop
+  'Taylor Swift@P@Taylor Swift~2006;Fearless~2008;Speak Now~2010;Red~2012;1989~2014;Reputation~2017;Lover~2019;Folklore~2020;Evermore~2020;Midnights~2022;The Tortured Poets Department~2024;The Life of a Showgirl~2025',
+  'Billie Eilish@P@When We All Fall Asleep, Where Do We Go?~2019;Happier Than Ever~2021;Hit Me Hard and Soft~2024',
+  'Olivia Rodrigo@P@SOUR~2021;GUTS~2023',
+  'Ariana Grande@P@Yours Truly~2013;My Everything~2014;Dangerous Woman~2016;Sweetener~2018;thank u, next~2019;Positions~2020;Eternal Sunshine~2024',
+  'The Weeknd@S@House of Balloons~2011;Kiss Land~2013;Beauty Behind the Madness~2015;Starboy~2016;After Hours~2020;Dawn FM~2022;Hurry Up Tomorrow~2025',
+  'Post Malone@H@Stoney~2016;beerbongs & bentleys~2018;Hollywood\'s Bleeding~2019;Austin~2023',
+  'Bruno Mars@P@Doo-Wops & Hooligans~2010;Unorthodox Jukebox~2012;24K Magic~2016',
+  'Justin Bieber@P@Purpose~2015;Changes~2020;Justice~2021',
+  'Rihanna@P@Good Girl Gone Bad~2007;Rated R~2009;Loud~2010;Talk That Talk~2011;Unapologetic~2012;Anti~2016',
+  'Beyoncé@S@Dangerously in Love~2003;B\'Day~2006;I Am... Sasha Fierce~2008;4~2011;Beyoncé~2013;Lemonade~2016;Renaissance~2022;Cowboy Carter~2024',
+  'Lady Gaga@P@The Fame~2008;Born This Way~2011;Artpop~2013;Joanne~2016;Chromatica~2020;Mayhem~2025',
+  'Katy Perry@P@One of the Boys~2008;Teenage Dream~2010;Prism~2013',
+  'Britney Spears@P@...Baby One More Time~1999;Oops!... I Did It Again~2000;In the Zone~2003;Blackout~2007;Femme Fatale~2011',
+  'Madonna@P@Like a Virgin~1984;Like a Prayer~1989;The Immaculate Collection~1990;Ray of Light~1998;Confessions on a Dance Floor~2005',
+  'Michael Jackson@P@Off the Wall~1979;Thriller~1982;Bad~1987;Dangerous~1991',
+  'Prince@S@1999~1982;Purple Rain~1984;Parade~1986;Sign o\' the Times~1987',
+  'Whitney Houston@S@Whitney Houston~1985',
+  'ABBA@P@Waterloo~1974;Arrival~1976;Voulez-Vous~1979;Super Trouper~1980;Gold: Greatest Hits~1992;Voyage~2021',
+  'Elton John@P@Madman Across the Water~1971;Honky Château~1972;Goodbye Yellow Brick Road~1973',
+  'Billy Joel@P@Piano Man~1973;The Stranger~1977;52nd Street~1978',
+  'Phil Collins@P@Face Value~1981;No Jacket Required~1985',
+  'Tears for Fears@P@Songs from the Big Chair~1985',
+  'Duran Duran@P@Rio~1982',
+  'Depeche Mode@E@Black Celebration~1986;Music for the Masses~1987;Violator~1990',
+  'Pet Shop Boys@E@Actually~1987',
+  'Eurythmics@P@Sweet Dreams (Are Made of This)~1983',
+  'Hall & Oates@P@Voices~1980;Private Eyes~1981;H2O~1982;Big Bam Boom~1984',
+  'Blondie@R@Parallel Lines~1978',
+  'Cyndi Lauper@P@She\'s So Unusual~1983',
+  'a-ha@P@Hunting High and Low~1985',
+  'Wham!@P@Make It Big~1984',
+  'George Michael@P@Faith~1987',
+  'Spice Girls@P@Spice~1996',
+  'Backstreet Boys@P@Millennium~1999',
+  '*NSYNC@P@No Strings Attached~2000',
+  'Destiny\'s Child@S@The Writing\'s on the Wall~1999;Survivor~2001',
+  'Alanis Morissette@R@Jagged Little Pill~1995',
+  'Shania Twain@F@Come On Over~1997',
+  'Mariah Carey@P@Music Box~1993;Daydream~1995;The Emancipation of Mimi~2005',
+  'Christina Aguilera@P@Stripped~2002',
+  'P!nk@P@M!ssundaztood~2001;Funhouse~2008',
+  'Kelly Clarkson@P@Breakaway~2004;Stronger~2011',
+  'Avril Lavigne@P@Let Go~2002',
+  'Kylie Minogue@P@Fever~2001;Disco~2020',
+  'Robyn@E@Body Talk~2010;Honey~2018',
+  'Charli XCX@P@Sucker~2014;Pop 2~2017;Crash~2022;BRAT~2024',
+  'Carly Rae Jepsen@P@Emotion~2015;Dedicated~2019',
+  'Lorde@P@Pure Heroine~2013;Melodrama~2017;Solar Power~2021;Virgin~2025',
+  'Sabrina Carpenter@P@Emails I Can\'t Send~2022;Short n\' Sweet~2024',
+  'Chappell Roan@P@The Rise and Fall of a Midwest Princess~2023',
+  'Gracie Abrams@P@The Secret of Us~2024',
+  'Dua Lipa@P@Dua Lipa~2017;Future Nostalgia~2020;Radical Optimism~2024',
+  'Harry Styles@P@Harry Styles~2017;Fine Line~2019;Harry\'s House~2022',
+  'Ed Sheeran@P@+~2011;x~2014;÷~2017;No.6 Collaborations Project~2019;=~2021',
+  'Adele@S@19~2008;21~2011;25~2015;30~2021',
+  'Amy Winehouse@S@Frank~2003;Back to Black~2006',
+  'Lana Del Rey@P@Born to Die~2012;Ultraviolence~2014;Honeymoon~2015;Lust for Life~2017;Norman Fucking Rockwell!~2019;Chemtrails over the Country Club~2021;Did You Know That There\'s a Tunnel Under Ocean Blvd~2023',
+  'Lewis Capaldi@P@Divinely Uninspired to a Hellish Extent~2019',
+  'One Direction@P@Up All Night~2011;Take Me Home~2012;Midnight Memories~2013;Four~2014;Made in the A.M.~2015',
+  'Little Mix@P@Glory Days~2016',
+  'Miley Cyrus@P@Bangerz~2013;Plastic Hearts~2020;Endless Summer Vacation~2023',
+  'Selena Gomez@P@Rare~2020',
+  'Camila Cabello@P@Camila~2018',
+  'Shawn Mendes@P@Illuminate~2016',
+  'Ellie Goulding@P@Lights~2010;Halcyon~2012',
+  'Jessie Ware@P@What\'s Your Pleasure?~2020',
+  'Doja Cat@P@Hot Pink~2019;Planet Her~2021;Scarlet~2023',
+  'Lizzo@S@Cuz I Love You~2019',
+  'Cardi B@H@Invasion of Privacy~2018',
+  'Nicki Minaj@H@Pink Friday~2010;The Pinkprint~2014',
+
+  // ---- hip-hop
+  'Kendrick Lamar@H@Section.80~2011;good kid, m.A.A.d city~2012;To Pimp a Butterfly~2015;DAMN.~2017;Mr. Morale & the Big Steppers~2022;GNX~2024',
+  'Kanye West@H@The College Dropout~2004;Late Registration~2005;Graduation~2007;808s & Heartbreak~2008;My Beautiful Dark Twisted Fantasy~2010;Yeezus~2013;The Life of Pablo~2016;Ye~2018;Donda~2021',
+  'JAY-Z@H@Reasonable Doubt~1996;Vol. 2... Hard Knock Life~1998;The Blueprint~2001;The Black Album~2003;4:44~2017',
+  'Drake@H@Thank Me Later~2010;Take Care~2011;Nothing Was the Same~2013;If You\'re Reading This It\'s Too Late~2015;Views~2016;More Life~2017;Scorpion~2018;Certified Lover Boy~2021;Honestly, Nevermind~2022',
+  'Travis Scott@H@Rodeo~2015;Birds in the Trap Sing McKnight~2016;ASTROWORLD~2018;UTOPIA~2023',
+  'J. Cole@H@Cole World: The Sideline Story~2011;Born Sinner~2013;2014 Forest Hills Drive~2014;KOD~2018;The Off-Season~2021',
+  'Tyler, The Creator@H@Goblin~2011;Wolf~2013;Cherry Bomb~2015;Flower Boy~2017;IGOR~2019;CALL ME IF YOU GET LOST~2021;CHROMAKOPIA~2024',
+  'Kid Cudi@H@Man on the Moon: The End of Day~2009;Man on the Moon II: The Legend of Mr. Rager~2010',
+  'Eminem@H@The Slim Shady LP~1999;The Marshall Mathers LP~2000;The Eminem Show~2002;Encore~2004;Recovery~2010;Kamikaze~2018',
+  'Nas@H@Illmatic~1994;It Was Written~1996',
+  'The Notorious B.I.G.@H@Ready to Die~1994',
+  '2Pac@H@Me Against the World~1995;All Eyez on Me~1996',
+  'Dr. Dre@H@The Chronic~1992;2001~1999',
+  'Snoop Dogg@H@Doggystyle~1993',
+  'Wu-Tang Clan@H@Enter the Wu-Tang (36 Chambers)~1993',
+  'A Tribe Called Quest@H@The Low End Theory~1991;Midnight Marauders~1993',
+  'OutKast@H@Aquemini~1998;Stankonia~2000;Speakerboxxx/The Love Below~2003',
+  'Lauryn Hill@S@The Miseducation of Lauryn Hill~1998',
+  'De La Soul@H@3 Feet High and Rising~1989',
+  'Beastie Boys@H@Licensed to Ill~1986;Paul\'s Boutique~1989;Ill Communication~1994',
+  'Public Enemy@H@It Takes a Nation of Millions to Hold Us Back~1988',
+  'Madvillain@H@Madvillainy~2004',
+  'Childish Gambino@H@Camp~2011;Because the Internet~2013;"Awaken, My Love!"~2016',
+  'Lil Wayne@H@Tha Carter II~2005;Tha Carter III~2008',
+  '50 Cent@H@Get Rich or Die Tryin\'~2003',
+  'Megan Thee Stallion@H@Good News~2020',
+  'Anderson .Paak@S@Malibu~2016;Oxnard~2018;Ventura~2019',
+  'Little Simz@H@Sometimes I Might Be Introvert~2021',
+  'Dave@H@Psychodrama~2019;We\'re All Alone in This Together~2021',
+  'Stormzy@H@Gang Signs & Prayer~2017;Heavy Is the Head~2019',
+  'Skepta@H@Konnichiwa~2016',
+  'J Hus@H@Common Sense~2017',
+
+  // ---- r&b / soul
+  'SZA@S@Ctrl~2017;SOS~2022',
+  'Daniel Caesar@S@Freudian~2017;Case Study 01~2019',
+  'Solange@S@A Seat at the Table~2016;When I Get Home~2019',
+  'Steve Lacy@S@Apollo XXI~2019;Gemini Rights~2022',
+  'Erykah Badu@S@Baduizm~1997;Mama\'s Gun~2000',
+  'D\'Angelo@S@Brown Sugar~1995;Voodoo~2000;Black Messiah~2014',
+  'Alicia Keys@S@Songs in A Minor~2001;The Diary of Alicia Keys~2003',
+  'Usher@S@Confessions~2004',
+  'Miguel@S@Kaleidoscope Dream~2012;Wildheart~2015',
+  'Stevie Wonder@S@Talking Book~1972;Innervisions~1973;Songs in the Key of Life~1976;Hotter than July~1980',
+  'Marvin Gaye@S@What\'s Going On~1971;Let\'s Get It On~1973',
+  'Aretha Franklin@S@I Never Loved a Man the Way I Love You~1967;Lady Soul~1968',
+  'Al Green@S@Let\'s Stay Together~1972',
+  'Otis Redding@S@Otis Blue~1965',
+  'Curtis Mayfield@S@Super Fly~1972',
+  'Bill Withers@S@Just As I Am~1971;Still Bill~1972',
+  'Earth, Wind & Fire@S@That\'s the Way of the World~1975',
+  'Sade@S@Diamond Life~1984;Love Deluxe~1992',
+  'Arlo Parks@S@Collapsed in Sunbeams~2021',
+
+  // ---- electronic
+  'Daft Punk@E@Homework~1997;Discovery~2001;Human After All~2005;Random Access Memories~2013',
+  'Justice@E@†~2007',
+  'The Chemical Brothers@E@Dig Your Own Hole~1997;Surrender~1999',
+  'Aphex Twin@E@Selected Ambient Works 85-92~1992',
+  'Kraftwerk@E@Trans-Europe Express~1977;The Man-Machine~1978',
+  'Moby@E@Play~1999',
+  'Fatboy Slim@E@You\'ve Come a Long Way, Baby~1998',
+  'The Prodigy@E@Music for the Jilted Generation~1994;The Fat of the Land~1997',
+  'Massive Attack@E@Blue Lines~1991;Mezzanine~1998',
+  'Portishead@E@Dummy~1994',
+  'Gorillaz@E@Gorillaz~2001;Demon Days~2005;Plastic Beach~2010;Humanz~2017;Cracker Island~2023',
+  'Avicii@E@True~2013;Stories~2015',
+  'Swedish House Mafia@E@Paradise Again~2022',
+  'Kygo@E@Cloud Nine~2016',
+  'Flume@E@Flume~2012;Skin~2016',
+  'Four Tet@E@Rounds~2003;There Is Love in You~2010;New Energy~2017',
+  'Bonobo@E@Black Sands~2010;Migration~2017',
+  'Burial@E@Untrue~2007',
+  'Skrillex@E@Recess~2014',
+  'Caribou@E@Swim~2010;Our Love~2014',
+  'KAYTRANADA@E@99.9%~2016;BUBBA~2019',
+  'Jamie xx@E@In Colour~2015',
+  'The xx@I@xx~2009;Coexist~2012;I See You~2017',
+  'James Blake@E@James Blake~2011;Overgrown~2013',
+  'Jungle@E@Jungle~2014',
+  'Röyksopp@E@Melody A.M.~2001',
+  'Air@E@Moon Safari~1998',
+  'Fred again..@E@Actual Life (April 14 - December 17 2020)~2021;Actual Life 3 (January 1 - September 9 2022)~2022;USB~2023',
+
+  // ---- jazz
+  'Miles Davis@J@Birth of the Cool~1957;Kind of Blue~1959;Sketches of Spain~1960;Bitches Brew~1970',
+  'John Coltrane@J@Blue Train~1958;Giant Steps~1960;A Love Supreme~1965',
+  'Dave Brubeck@J@Time Out~1959',
+  'Thelonious Monk@J@Brilliant Corners~1957',
+  'Charles Mingus@J@Mingus Ah Um~1959',
+  'Herbie Hancock@J@Maiden Voyage~1965;Head Hunters~1973',
+  'Bill Evans@J@Sunday at the Village Vanguard~1961;Waltz for Debby~1962',
+  'Nina Simone@J@Pastel Blues~1965;I Put a Spell on You~1965',
+  'Billie Holiday@J@Lady in Satin~1958',
+  'Ella Fitzgerald@J@Ella and Louis~1956',
+  'Louis Armstrong@J@What a Wonderful World~1968',
+  'Stan Getz & João Gilberto@J@Getz/Gilberto~1964',
+  'Chet Baker@J@Chet Baker Sings~1956',
+  'Norah Jones@J@Come Away with Me~2002',
+  'Kamasi Washington@J@The Epic~2015;Heaven and Earth~2018',
+  'Frank Sinatra@J@In the Wee Small Hours~1955;Songs for Swingin\' Lovers!~1956;Come Fly with Me~1958',
+  'Ray Charles@S@Modern Sounds in Country and Western Music~1962',
+  'Michael Bublé@J@Crazy Love~2009',
+
+  // ---- reggae
+  'Peter Tosh@G@Legalize It~1976',
+  'Damian Marley@G@Welcome to Jamrock~2005',
+  'Sublime@G@Sublime~1996',
+  'UB40@G@Labour of Love~1983'
+  ];
+
+  var CAT = [];
+  RAW.forEach(function (line) {
+    var p = line.split('@');
+    var artist = p[0], genre = CODES[p[1]] || '';
+    p[2].split(';').forEach(function (a) {
+      var q = a.split('~');
+      CAT.push({ artist: artist, title: q[0], year: parseInt(q[1], 10) || '', genre: genre, spot: SPOT.indexOf(artist) > -1 });
+    });
+  });
+
+  /* ---------- storage ---------- */
+  var KEY = 'crate.v1', ARTKEY = 'crate.art.v1';
+  var state = { items: [], prefs: { tab: 'collection', sort: 'added', group: 'none', view: 'grid', q: '' } };
+  var artCache = {};
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var d = JSON.parse(raw);
+        if (d && Array.isArray(d.items)) state.items = d.items;
+        if (d && d.prefs) Object.assign(state.prefs, d.prefs); }
+    } catch (e) {}
+    try { var a = localStorage.getItem(ARTKEY); if (a) artCache = JSON.parse(a) || {}; } catch (e) {}
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function saveArt() { try { localStorage.setItem(ARTKEY, JSON.stringify(artCache)); } catch (e) {} }
+
+  /* ---------- helpers ---------- */
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('on'); }, 1600); }
+  function hue(str) { var h = 0; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360; return h; }
+  function decade(y) { return y ? (Math.floor(y / 10) * 10) + 's' : 'Unknown'; }
+  function stars(n) { return n ? '★'.repeat(n) + '☆'.repeat(5 - n) : ''; }
+  function norm(s) { return String(s || '').toLowerCase(); }
+  function article(s) { return norm(s).replace(/^(the|a|an)\s+/, ''); }
+  function clean(s) { return norm(s).replace(/\s*[\(\[][^\)\]]*[\)\]]/g, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, ''); }
+  function artKey(artist, title) { return clean(artist) + '|' + clean(title); }
+
+  function coverHTML(it, badge) {
+    var key = artKey(it.artist, it.title);
+    var art = it.art || artCache[key] || '';
+    var inner = art ? '<img loading="lazy" src="' + esc(art) + '" alt="">' : phHTML(it);
+    return '<div class="cover" data-key="' + esc(key) + '">' + inner + (badge || '') + '</div>';
+  }
+  function phHTML(it) {
+    var h = hue(it.title + it.artist);
+    return '<div class="ph" style="background:linear-gradient(135deg,hsl(' + h + ',55%,38%),hsl(' + ((h + 50) % 360) + ',60%,22%))">' +
+      esc((it.title || '?').charAt(0).toUpperCase()) + '</div>';
+  }
+
+  /* ---------- cover art service (Apple's public search; rate-limited, so queued) ---------- */
+  var queue = [], queued = {}, running = false;
+  function applyArt(key, url) {
+    Array.prototype.forEach.call(document.querySelectorAll('.cover[data-key="' + key + '"]'), function (el) {
+      var badge = el.querySelector('.badge');
+      var img = document.createElement('img'); img.src = url; img.alt = ''; img.loading = 'lazy';
+      var ph = el.querySelector('.ph'); if (ph) ph.remove();
+      if (!el.querySelector('img')) el.insertBefore(img, badge || null);
+    });
+    var changed = false;
+    state.items.forEach(function (it) { if (!it.art && artKey(it.artist, it.title) === key) { it.art = url; changed = true; } });
+    if (changed) save();
+  }
+  function setArt(key, url) { artCache[key] = url; saveArt(); if (url) applyArt(key, url); }
+  function needArt(artist, title, front) {
+    var key = artKey(artist, title);
+    if (artCache[key] !== undefined && artCache[key] !== null) { if (artCache[key]) applyArt(key, artCache[key]); return; }
+    if (queued[key]) { if (front) { queue = queue.filter(function (j) { return j.key !== key; }); queue.unshift({ key: key, artist: artist, title: title }); } return; }
+    queued[key] = true;
+    var job = { key: key, artist: artist, title: title };
+    front ? queue.unshift(job) : queue.push(job);
+    pump();
+  }
+  function pump() {
+    if (running || !queue.length) return;
+    running = true;
+    var job = queue.shift();
+    var term = job.artist + ' ' + job.title.replace(/\s*[\(\[][^\)\]]*[\)\]]/g, '');
+    fetch('https://itunes.apple.com/search?media=music&entity=album&limit=6&term=' + encodeURIComponent(term))
+      .then(function (r) { if (!r.ok) throw new Error('rate'); return r.json(); })
+      .then(function (d) {
+        var res = d.results || [], best = null, ck = clean(job.title), ca = clean(job.artist);
+        res.forEach(function (r) { if (!best && clean(r.collectionName).indexOf(ck.slice(0, 10)) === 0 && (clean(r.artistName).indexOf(ca.slice(0, 6)) > -1 || ca.indexOf(clean(r.artistName).slice(0, 6)) > -1)) best = r; });
+        if (!best && res.length && clean(res[0].artistName).indexOf(ca.slice(0, 6)) > -1) best = res[0];
+        setArt(job.key, best ? (best.artworkUrl100 || '').replace('100x100bb', '500x500bb') : '');
+        delete queued[job.key];
+        running = false; setTimeout(pump, 2200);
+      })
+      .catch(function () {
+        queue.push(job); running = false; setTimeout(pump, 30000);
+      });
+  }
+
+  /* ---------- icon ---------- */
+  function makeIcon() {
+    try {
+      var c = document.createElement('canvas'); c.width = c.height = 180;
+      var x = c.getContext('2d');
+      x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 180, 180);
+      var g = x.createRadialGradient(90, 90, 10, 90, 90, 80);
+      g.addColorStop(0, '#2a2a30'); g.addColorStop(1, '#101013');
+      x.fillStyle = g; x.beginPath(); x.arc(90, 90, 74, 0, 7); x.fill();
+      x.strokeStyle = '#2f2f36'; x.lineWidth = 1.5;
+      [30, 42, 54, 66].forEach(function (r) { x.beginPath(); x.arc(90, 90, r, 0, 7); x.stroke(); });
+      x.fillStyle = '#f5a524'; x.beginPath(); x.arc(90, 90, 22, 0, 7); x.fill();
+      x.fillStyle = '#0b0b0d'; x.beginPath(); x.arc(90, 90, 4, 0, 7); x.fill();
+      $('touchIcon').href = c.toDataURL('image/png');
+    } catch (e) {}
+  }
+
+  /* ---------- view logic ---------- */
+  var SORTS = {
+    added:   { label: 'Recently added', fn: function (a, b) { return b.added - a.added; } },
+    artist:  { label: 'Artist A–Z',     fn: function (a, b) { return article(a.artist).localeCompare(article(b.artist)) || (a.year || 0) - (b.year || 0); } },
+    title:   { label: 'Title A–Z',      fn: function (a, b) { return article(a.title).localeCompare(article(b.title)); } },
+    yearNew: { label: 'Year (newest)',  fn: function (a, b) { return (b.year || 0) - (a.year || 0); } },
+    yearOld: { label: 'Year (oldest)',  fn: function (a, b) { return (a.year || 9999) - (b.year || 9999); } },
+    rating:  { label: 'Rating',         fn: function (a, b) { return (b.rating || 0) - (a.rating || 0); } },
+    priority:{ label: 'Priority',       fn: function (a, b) { return (b.priority || 0) - (a.priority || 0); } }
+  };
+  var GROUPS = {
+    none:   { label: 'No grouping', key: function () { return ''; } },
+    genre:  { label: 'Genre',       key: function (i) { return i.genre || 'No genre'; } },
+    decade: { label: 'Decade',      key: function (i) { return decade(i.year); } },
+    artist: { label: 'Artist',      key: function (i) { return i.artist || 'Unknown'; } },
+    rating: { label: 'Rating',      key: function (i) { return i.rating ? i.rating + ' ★' : 'Unrated'; } },
+    priority:{label: 'Priority',    key: function (i) { return ['', 'Low', 'Medium', 'High'][i.priority || 0] || 'No priority'; } }
+  };
+
+  function visible() {
+    var p = state.prefs, q = norm(p.q);
+    var list = state.items.filter(function (i) { return i.list === p.tab; });
+    if (q) list = list.filter(function (i) { return norm(i.title + ' ' + i.artist + ' ' + i.genre + ' ' + i.year + ' ' + i.notes).indexOf(q) > -1; });
+    list.sort(SORTS[SORTS[p.sort] ? p.sort : 'added'].fn);
+    return list;
+  }
+
+  var ICON = {
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+    grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+    disc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg>',
+    chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>'
+  };
+
+  /* ---------- render ---------- */
+  function render() {
+    var p = state.prefs;
+    renderNav();
+    $('fab').style.display = p.tab === 'stats' ? 'none' : 'grid';
+    var app = $('app');
+    if (p.tab === 'stats') { app.innerHTML = renderStats(); bindStats(); return; }
+
+    var count = state.items.filter(function (i) { return i.list === p.tab; }).length;
+    var isWish = p.tab === 'wishlist';
+    var sortOpts = Object.keys(SORTS).filter(function (k) { return isWish ? k !== 'rating' : k !== 'priority'; })
+      .map(function (k) { return '<option value="' + k + '"' + (p.sort === k ? ' selected' : '') + '>' + SORTS[k].label + '</option>'; }).join('');
+    var groupOpts = Object.keys(GROUPS).filter(function (k) { return isWish ? k !== 'rating' : k !== 'priority'; })
+      .map(function (k) { return '<option value="' + k + '"' + (p.group === k ? ' selected' : '') + '>' + GROUPS[k].label + '</option>'; }).join('');
+
+    app.innerHTML = '<header><h1>' + (isWish ? 'Wishlist' : 'Collection') + '</h1><div class="sub">' + count + (count === 1 ? ' record' : ' records') + '</div></header>' +
+      '<div class="toolbar">' +
+        '<div class="search">' + ICON.search + '<input id="q" type="search" placeholder="Search title, artist, genre…" value="' + esc(p.q) + '"></div>' +
+        '<div class="row"><select id="sort" aria-label="Sort">' + sortOpts + '</select>' +
+        '<select id="group" aria-label="Group">' + groupOpts + '</select>' +
+        '<button class="viewbtn" id="viewbtn" aria-label="Toggle view">' + (p.view === 'grid' ? ICON.list : ICON.grid) + '</button></div>' +
+      '</div><div id="content"></div>';
+    renderContent(visible(), isWish);
+
+    $('q').addEventListener('input', function (e) { p.q = e.target.value; save(); renderContent(visible(), isWish); });
+    $('sort').addEventListener('change', function (e) { p.sort = e.target.value; save(); renderContent(visible(), isWish); });
+    $('group').addEventListener('change', function (e) { p.group = e.target.value; save(); renderContent(visible(), isWish); });
+    $('viewbtn').addEventListener('click', function () { p.view = p.view === 'grid' ? 'list' : 'grid'; save(); render(); });
+  }
+
+  function renderContent(list, isWish) {
+    var p = state.prefs, c = $('content');
+    if (!list.length) {
+      var searching = !!p.q;
+      c.innerHTML = '<div class="empty"><div class="disc"></div><b>' +
+        (searching ? 'Nothing found' : isWish ? 'Wishlist is empty' : 'No records yet') + '</b>' +
+        (searching ? 'Try a different search.' : 'Tap + to add your first ' + (isWish ? 'want.' : 'album.')) + '</div>';
+      return;
+    }
+    var gk = GROUPS[p.group] && !(isWish && p.group === 'rating') && !(!isWish && p.group === 'priority') ? p.group : 'none';
+    var groups = {}, order = [];
+    list.forEach(function (it) { var k = GROUPS[gk].key(it); if (!groups[k]) { groups[k] = []; order.push(k); } groups[k].push(it); });
+    if (gk === 'decade') order.sort();
+    if (gk === 'genre' || gk === 'artist') order.sort(function (a, b) { return article(a).localeCompare(article(b)); });
+    if (gk === 'rating') order.sort().reverse();
+    if (gk === 'priority') { var pr = { High: 3, Medium: 2, Low: 1 }; order.sort(function (a, b) { return (pr[b] || 0) - (pr[a] || 0); }); }
+
+    var out = '';
+    order.forEach(function (k) {
+      if (gk !== 'none') out += '<div class="section-h"><span>' + esc(k) + '</span><b>' + groups[k].length + '</b></div>';
+      out += p.view === 'grid' ? '<div class="grid">' + groups[k].map(tile).join('') + '</div>' : '<div class="list">' + groups[k].map(row).join('') + '</div>';
+    });
+    c.innerHTML = out;
+    Array.prototype.forEach.call(c.querySelectorAll('[data-id]'), function (el) {
+      el.addEventListener('click', function () { openDetail(el.getAttribute('data-id')); });
+    });
+    list.forEach(function (it) { if (!it.art) needArt(it.artist, it.title, false); });
+  }
+
+  function badgeFor(it) {
+    if (it.list === 'wishlist') return it.priority === 3 ? '<span class="badge hi">High</span>' : '';
+    return it.rating ? '<span class="badge">' + it.rating + ' ★</span>' : '';
+  }
+  function tile(it) {
+    return '<button class="tile" data-id="' + it.id + '">' + coverHTML(it, badgeFor(it)) +
+      '<div class="t-title">' + esc(it.title) + '</div><div class="t-artist">' + esc(it.artist) + (it.year ? ' · ' + it.year : '') + '</div></button>';
+  }
+  function row(it) {
+    var right = it.list === 'collection' ? '<div class="stars">' + stars(it.rating) + '</div>' : '<div>' + (['', 'Low', 'Medium', 'High'][it.priority || 0] || '') + '</div>';
+    return '<button class="item" data-id="' + it.id + '">' + coverHTML(it) +
+      '<div class="meta"><div class="t-title">' + esc(it.title) + '</div><div class="t-artist">' + esc(it.artist) +
+      (it.genre ? ' · ' + esc(it.genre) : '') + '</div></div><div class="right">' + (it.year || '') + right + '</div></button>';
+  }
+
+  function renderNav() {
+    var t = state.prefs.tab;
+    function b(id, label, icon) { return '<button data-tab="' + id + '" class="' + (t === id ? 'on' : '') + '">' + icon + label + '</button>'; }
+    $('nav').innerHTML = b('collection', 'Collection', ICON.disc) + b('wishlist', 'Wishlist', ICON.heart) + b('stats', 'Stats', ICON.chart);
+    Array.prototype.forEach.call($('nav').querySelectorAll('button'), function (el) {
+      el.addEventListener('click', function () { state.prefs.tab = el.getAttribute('data-tab'); state.prefs.q = ''; save(); render(); window.scrollTo(0, 0); });
+    });
+  }
+
+  /* ---------- stats ---------- */
+  function countBy(arr, fn) { var m = {}; arr.forEach(function (i) { var k = fn(i); m[k] = (m[k] || 0) + 1; });
+    return Object.keys(m).map(function (k) { return [k, m[k]]; }).sort(function (a, b) { return b[1] - a[1]; }); }
+  function bars(pairs, limit) {
+    if (!pairs.length) return '<div class="sub">Nothing to show yet.</div>';
+    pairs = pairs.slice(0, limit || 6);
+    var max = pairs[0][1];
+    return pairs.map(function (p) {
+      return '<div class="bar"><div class="l"><span>' + esc(p[0]) + '</span><span>' + p[1] + '</span></div><div class="t"><div class="f" style="width:' + Math.round(p[1] / max * 100) + '%"></div></div></div>';
+    }).join('');
+  }
+  function renderStats() {
+    var coll = state.items.filter(function (i) { return i.list === 'collection'; });
+    var wish = state.items.filter(function (i) { return i.list === 'wishlist'; });
+    var rated = coll.filter(function (i) { return i.rating; });
+    var avg = rated.length ? (rated.reduce(function (s, i) { return s + i.rating; }, 0) / rated.length).toFixed(1) : '–';
+    var decs = countBy(coll, function (i) { return decade(i.year); }).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+    return '<header><h1>Stats</h1></header>' +
+      '<div class="stat-grid"><div class="stat"><b>' + coll.length + '</b><span>Owned</span></div>' +
+      '<div class="stat"><b>' + wish.length + '</b><span>Wishlist</span></div>' +
+      '<div class="stat"><b>' + avg + '</b><span>Avg rating</span></div></div>' +
+      '<div class="section-h"><span>Top genres</span></div><div class="bars">' + bars(countBy(coll, function (i) { return i.genre || 'No genre'; })) + '</div>' +
+      '<div class="section-h"><span>By decade</span></div><div class="bars">' + bars(decs, 12) + '</div>' +
+      '<div class="section-h"><span>Top artists</span></div><div class="bars">' + bars(countBy(coll, function (i) { return i.artist || 'Unknown'; })) + '</div>' +
+      '<div class="section-h"><span>Backup</span></div>' +
+      '<div class="hint" style="margin:0 0 10px">Your records live in this browser on this device. Export a backup now and then, especially before clearing Safari data.</div>' +
+      '<div class="row"><button class="btn ghost small" id="exp">Export backup</button><button class="btn ghost small" id="imp">Import backup</button></div>';
+  }
+  function bindStats() {
+    $('exp').addEventListener('click', function () {
+      var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'crate-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    $('imp').addEventListener('click', function () { $('importFile').click(); });
+  }
+  $('importFile').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(r.result);
+        if (!d || !Array.isArray(d.items)) throw 0;
+        if (!confirm('Replace everything with this backup (' + d.items.length + ' records)?')) return;
+        state.items = d.items; if (d.prefs) Object.assign(state.prefs, d.prefs);
+        save(); render(); toast('Backup restored');
+      } catch (err) { alert('That file doesn\'t look like a Crate backup.'); }
+    };
+    r.readAsText(f); e.target.value = '';
+  });
+
+  /* ---------- sheets ---------- */
+  function openSheet(html, tall) {
+    var s = $('sheet'); s.className = 'sheet' + (tall ? ' tall' : '');
+    s.innerHTML = '<div class="grab"></div>' + html;
+    void s.offsetWidth; s.classList.add('on'); $('scrim').classList.add('on'); s.scrollTop = 0;
+  }
+  function closeSheet() { $('sheet').classList.remove('on'); $('scrim').classList.remove('on'); addToken++; }
+  $('scrim').addEventListener('click', closeSheet);
+
+  function openDetail(id) {
+    var it = state.items.filter(function (i) { return i.id === id; })[0]; if (!it) return;
+    var chips = [];
+    if (it.year) chips.push(it.year);
+    if (it.genre) chips.push(esc(it.genre));
+    if (it.list === 'wishlist' && it.priority) chips.push(['', 'Low', 'Medium', 'High'][it.priority] + ' priority');
+    openSheet('<div class="detail"><div class="detail-cover">' + coverHTML(it) + '</div>' +
+      '<h2>' + esc(it.title) + '</h2><div class="by">' + esc(it.artist) + '</div>' +
+      '<div class="chips">' + chips.map(function (c) { return '<span class="chip">' + c + '</span>'; }).join('') + '</div>' +
+      (it.rating ? '<div class="stars" style="text-align:center;font-size:18px">' + stars(it.rating) + '</div>' : '') +
+      (it.notes ? '<div class="notes">' + esc(it.notes) + '</div>' : '') +
+      (it.list === 'wishlist' ? '<button class="btn" id="own">Got it – move to collection</button>' : '') +
+      '<button class="btn ghost" id="edit">Edit rating / notes</button>' +
+      '<button class="btn danger" id="del">Delete</button></div>');
+    var own = $('own');
+    if (own) own.addEventListener('click', function () { it.list = 'collection'; it.added = Date.now(); save(); closeSheet(); render(); toast('Added to collection'); });
+    $('edit').addEventListener('click', function () { openForm(it); });
+    $('del').addEventListener('click', function () {
+      if (confirm('Delete "' + it.title + '"?')) { state.items = state.items.filter(function (x) { return x.id !== id; }); save(); closeSheet(); render(); }
+    });
+  }
+
+  /* ---------- ADD: pick from the database ---------- */
+  var addToken = 0;
+  var add = { target: 'collection', chip: 'spot', q: '', shown: 40, live: [], liveFor: '' };
+  var addMap = {};
+
+  function findItem(key) {
+    for (var i = 0; i < state.items.length; i++) if (artKey(state.items[i].artist, state.items[i].title) === key) return state.items[i];
+    return null;
+  }
+
+  function openAdd() {
+    add.target = state.prefs.tab === 'wishlist' ? 'wishlist' : 'collection';
+    add.chip = 'spot'; add.q = ''; add.shown = 40; add.live = []; add.liveFor = '';
+    var genres = Object.keys(CODES).map(function (k) { return CODES[k]; }).sort();
+    var chips = '<button class="fchip spot on" data-c="spot">Your Spotify</button><button class="fchip" data-c="all">All A–Z</button>' +
+      genres.map(function (g) { return '<button class="fchip" data-c="g:' + esc(g) + '">' + esc(g) + '</button>'; }).join('');
+    openSheet('<div class="seg" id="tgt"><button data-v="collection">Add to Collection</button><button data-v="wishlist">Add to Wishlist</button></div>' +
+      '<div class="search" style="margin-top:10px"><input id="aq" type="search" placeholder="Search any album or artist…" autocomplete="off" autocorrect="off">' + ICON.search + '</div>' +
+      '<div class="chips-row" id="chips">' + chips + '</div>' +
+      '<div class="scroll" id="addscroll"><div id="addres"></div></div>' +
+      '<button class="linkbtn" id="manual">Can\'t find it? Add manually</button>', true);
+
+    function syncTgt() { Array.prototype.forEach.call($('tgt').children, function (b) { b.classList.toggle('on', b.getAttribute('data-v') === add.target); }); }
+    Array.prototype.forEach.call($('tgt').children, function (b) { b.addEventListener('click', function () { add.target = b.getAttribute('data-v'); syncTgt(); renderAdd(); }); });
+    syncTgt();
+    Array.prototype.forEach.call($('chips').children, function (b) {
+      b.addEventListener('click', function () {
+        add.chip = b.getAttribute('data-c'); add.shown = 40; $('aq').value = ''; add.q = ''; add.live = [];
+        Array.prototype.forEach.call($('chips').children, function (x) { x.classList.toggle('on', x === b); });
+        $('addscroll').scrollTop = 0; renderAdd();
+      });
+    });
+    var timer;
+    $('aq').addEventListener('input', function (e) {
+      add.q = e.target.value.trim(); add.shown = 40; add.live = []; add.liveFor = '';
+      Array.prototype.forEach.call($('chips').children, function (x) { x.classList.remove('on'); });
+      if (!add.q) { add.chip = 'spot'; $('chips').children[0].classList.add('on'); }
+      renderAdd();
+      clearTimeout(timer);
+      if (add.q.length >= 3) timer = setTimeout(function () { liveSearch(add.q); }, 450);
+    });
+    $('manual').addEventListener('click', function () { openForm(null, add.q); });
+    renderAdd();
+  }
+
+  function localResults() {
+    var q = norm(add.q), out;
+    if (q) {
+      var toks = q.split(/\s+/).filter(Boolean);
+      out = CAT.map(function (a) {
+        var hay = norm(a.artist + ' ' + a.title), ok = toks.every(function (t) { return hay.indexOf(t) > -1; });
+        if (!ok) return null;
+        var score = (norm(a.title).indexOf(q) === 0 ? 3 : 0) + (norm(a.artist).indexOf(q) === 0 ? 3 : 0) + (a.spot ? 1 : 0);
+        return { a: a, s: score };
+      }).filter(Boolean).sort(function (x, y) { return y.s - x.s; }).map(function (x) { return x.a; });
+    } else if (add.chip === 'spot') {
+      out = CAT.filter(function (a) { return a.spot; });
+    } else if (add.chip.indexOf('g:') === 0) {
+      var g = add.chip.slice(2); out = CAT.filter(function (a) { return a.genre === g; });
+    } else out = CAT.slice();
+    if (!q) out.sort(function (x, y) { return article(x.artist).localeCompare(article(y.artist)) || x.year - y.year; });
+    return out;
+  }
+
+  function addRow(a) {
+    var key = artKey(a.artist, a.title); addMap[key] = a;
+    var ex = findItem(key), btn;
+    if (ex && ex.list === add.target) btn = '<button class="addbtn done" data-k="' + esc(key) + '" aria-label="Added">✓</button>';
+    else if (ex) btn = '<button class="addbtn other" data-k="' + esc(key) + '">' + (ex.list === 'collection' ? 'Owned' : 'Wishlist') + '</button>';
+    else btn = '<button class="addbtn" data-k="' + esc(key) + '" aria-label="Add">+</button>';
+    return '<div class="arow">' + coverHTML({ artist: a.artist, title: a.title, art: a.art }) +
+      '<div class="meta"><div class="t-title">' + esc(a.title) + '</div><div class="t-artist">' + esc(a.artist) + (a.year ? ' · ' + a.year : '') + (a.genre ? ' · ' + esc(a.genre) : '') + '</div></div>' + btn + '</div>';
+  }
+
+  var io = null;
+  function renderAdd() {
+    var res = localResults(), html = '';
+    var seen = {}; res.forEach(function (a) { seen[artKey(a.artist, a.title)] = 1; });
+    var live = add.live.filter(function (a) { return !seen[artKey(a.artist, a.title)]; });
+    var titleTxt = add.q ? '' : add.chip === 'spot' ? '<div class="hint">' + res.length + ' albums from the artists in your Spotify playlist. Tap + to add.</div>'
+      : '<div class="hint">' + res.length + ' albums. Use the search to find anything else.</div>';
+    html += titleTxt;
+    var shown = res.slice(0, add.shown);
+    html += shown.map(addRow).join('');
+    if (res.length > add.shown) html += '<button class="more" id="more">Show more (' + (res.length - add.shown) + ')</button>';
+    if (add.q) {
+      if (live.length) html += '<div class="grp">More from Apple Music</div>' + live.map(addRow).join('');
+      else if (add.q.length >= 3) html += '<div class="hint">' + (add.liveFor === add.q ? (res.length ? 'No further matches online.' : 'No matches found. Try fewer words, or add it manually below.') : 'Searching the wider catalogue…') + '</div>';
+      else if (!res.length) html += '<div class="hint">Keep typing…</div>';
+    }
+    $('addres').innerHTML = html;
+    Array.prototype.forEach.call($('addres').querySelectorAll('.addbtn'), function (b) {
+      b.addEventListener('click', function () { quickAdd(b.getAttribute('data-k'), b); });
+    });
+    var more = $('more'); if (more) more.addEventListener('click', function () { add.shown += 60; var y = $('addscroll').scrollTop; renderAdd(); $('addscroll').scrollTop = y; });
+
+    // fetch artwork for rows as they scroll into view
+    if (io) io.disconnect();
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          io.unobserve(en.target);
+          var k = en.target.getAttribute('data-key'), a = addMap[k];
+          if (a && !a.art) needArt(a.artist, a.title, true);
+        });
+      }, { root: $('addscroll'), rootMargin: '120px' });
+      Array.prototype.forEach.call($('addres').querySelectorAll('.cover[data-key]'), function (el) { io.observe(el); });
+    }
+  }
+
+  function liveSearch(q) {
+    var token = ++addToken;
+    fetch('https://itunes.apple.com/search?media=music&entity=album&limit=25&term=' + encodeURIComponent(q))
+      .then(function (r) { if (!r.ok) throw new Error('x'); return r.json(); })
+      .then(function (d) {
+        if (token !== addToken || add.q !== q) return;
+        add.live = (d.results || []).filter(function (r) { return r.collectionName; }).map(function (r) {
+          var art = (r.artworkUrl100 || '').replace('100x100bb', '500x500bb');
+          var a = { artist: r.artistName, title: r.collectionName.replace(/\s*-\s*(Single|EP)$/i, ''), year: parseInt((r.releaseDate || '').slice(0, 4), 10) || '', genre: r.primaryGenreName || '', art: art, live: true };
+          if (art) artCache[artKey(a.artist, a.title)] = art;
+          return a;
+        });
+        add.liveFor = q; saveArt(); renderAdd();
+      })
+      .catch(function () { if (token === addToken) { add.liveFor = q; renderAdd(); } });
+  }
+
+  function quickAdd(key, btn) {
+    var a = addMap[key]; if (!a) return;
+    var ex = findItem(key);
+    if (ex) { toast(ex.list === add.target ? 'Already in your ' + add.target : 'Already in your ' + ex.list); return; }
+    state.items.push({ id: uid(), title: a.title, artist: a.artist, year: a.year, genre: a.genre, art: a.art || artCache[key] || '',
+      rating: 0, priority: 2, notes: '', list: add.target, added: Date.now() });
+    save();
+    btn.className = 'addbtn done'; btn.textContent = '✓';
+    toast('Added to ' + add.target);
+    if (!a.art && !artCache[key]) needArt(a.artist, a.title, true);
+    render();
+  }
+
+  /* ---------- manual / edit form ---------- */
+  function openForm(existing, prefill) {
+    var it = existing || { id: uid(), title: prefill || '', artist: '', year: '', genre: '', art: '', rating: 0, priority: 2, notes: '',
+      list: state.prefs.tab === 'wishlist' ? 'wishlist' : 'collection', added: Date.now() };
+    var draft = JSON.parse(JSON.stringify(it));
+
+    openSheet('<h2>' + (existing ? 'Edit record' : 'Add manually') + '</h2>' +
+      '<div class="seg" id="listseg"><button data-v="collection">Collection</button><button data-v="wishlist">Wishlist</button></div>' +
+      '<label>Title</label><input id="f_title" value="' + esc(draft.title) + '">' +
+      '<label>Artist</label><input id="f_artist" value="' + esc(draft.artist) + '">' +
+      '<div class="two"><div><label>Year</label><input id="f_year" inputmode="numeric" maxlength="4" value="' + esc(draft.year) + '"></div>' +
+      '<div><label>Genre</label><input id="f_genre" list="genres" value="' + esc(draft.genre) + '"></div></div>' +
+      '<datalist id="genres">' + genreList().map(function (g) { return '<option value="' + esc(g) + '">'; }).join('') + '</datalist>' +
+      '<div id="ratewrap"><label>Rating</label><div class="rate" id="rate"></div></div>' +
+      '<div id="priowrap"><label>Priority</label><div class="seg" id="prioseg"><button data-v="1">Low</button><button data-v="2">Medium</button><button data-v="3">High</button></div></div>' +
+      '<label>Notes</label><textarea id="f_notes" placeholder="Pressing, colour, where you bought it…">' + esc(draft.notes) + '</textarea>' +
+      '<button class="btn" id="saveBtn">' + (existing ? 'Save changes' : 'Add') + '</button>' +
+      '<button class="btn ghost" id="cancelBtn">Cancel</button>');
+
+    function sync() {
+      Array.prototype.forEach.call($('listseg').children, function (b) { b.classList.toggle('on', b.getAttribute('data-v') === draft.list); });
+      Array.prototype.forEach.call($('prioseg').children, function (b) { b.classList.toggle('on', +b.getAttribute('data-v') === draft.priority); });
+      $('ratewrap').style.display = draft.list === 'collection' ? 'block' : 'none';
+      $('priowrap').style.display = draft.list === 'wishlist' ? 'block' : 'none';
+      $('rate').innerHTML = [1, 2, 3, 4, 5].map(function (n) { return '<button data-n="' + n + '" class="' + (draft.rating >= n ? 'on' : '') + '">★</button>'; }).join('');
+      Array.prototype.forEach.call($('rate').children, function (b) {
+        b.addEventListener('click', function () { var n = +b.getAttribute('data-n'); draft.rating = draft.rating === n ? 0 : n; sync(); });
+      });
+    }
+    Array.prototype.forEach.call($('listseg').children, function (b) { b.addEventListener('click', function () { draft.list = b.getAttribute('data-v'); sync(); }); });
+    Array.prototype.forEach.call($('prioseg').children, function (b) { b.addEventListener('click', function () { draft.priority = +b.getAttribute('data-v'); sync(); }); });
+    sync();
+
+    $('cancelBtn').addEventListener('click', function () { existing ? openDetail(existing.id) : closeSheet(); });
+    $('saveBtn').addEventListener('click', function () {
+      var title = $('f_title').value.trim(), artist = $('f_artist').value.trim();
+      if (!title) { toast('Add a title'); $('f_title').focus(); return; }
+      draft.title = title; draft.artist = artist || 'Unknown artist';
+      var y = parseInt($('f_year').value, 10); draft.year = y > 1800 && y < 2100 ? y : '';
+      draft.genre = $('f_genre').value.trim(); draft.notes = $('f_notes').value.trim();
+      if (draft.list === 'wishlist') draft.rating = 0;
+      if (existing) Object.assign(existing, draft); else state.items.push(draft);
+      state.prefs.tab = draft.list; state.prefs.q = '';
+      save(); closeSheet(); render(); toast(existing ? 'Saved' : 'Added');
+    });
+  }
+
+  function genreList() {
+    var base = Object.keys(CODES).map(function (k) { return CODES[k]; });
+    state.items.forEach(function (i) { if (i.genre && base.indexOf(i.genre) < 0) base.push(i.genre); });
+    return base;
+  }
+
+  $('fab').addEventListener('click', openAdd);
+
+  load(); makeIcon(); render();
+})();
+</script>
+</body>
+</html>
